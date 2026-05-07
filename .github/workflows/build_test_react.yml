@@ -7,6 +7,11 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+# Permissions for GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -37,8 +42,18 @@ jobs:
       - name:
 
         uses: actions/upload-pages-artifact@v3
-
         with:
-      
           path: './my-app/build'
-          
+# Deploy job
+
+  deploy:
+    # Deploy job to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build_test
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
