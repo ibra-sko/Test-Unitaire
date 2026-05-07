@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/Test-Unitaire/static/css/main.f855e6bc.css",
+    "main.js": "/Test-Unitaire/static/js/main.2ef3b1cb.js",
+    "static/js/453.e9e7ec89.chunk.js": "/Test-Unitaire/static/js/453.e9e7ec89.chunk.js",
+    "index.html": "/Test-Unitaire/index.html",
+    "main.f855e6bc.css.map": "/Test-Unitaire/static/css/main.f855e6bc.css.map",
+    "main.2ef3b1cb.js.map": "/Test-Unitaire/static/js/main.2ef3b1cb.js.map",
+    "453.e9e7ec89.chunk.js.map": "/Test-Unitaire/static/js/453.e9e7ec89.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f855e6bc.css",
+    "static/js/main.2ef3b1cb.js"
+  ]
+}
