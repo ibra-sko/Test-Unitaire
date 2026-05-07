@@ -34,7 +34,8 @@ jobs:
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
         with:
-           token: ${{ secrets.CODECOV_TOKEN }}
+          directory: ./my-app/coverage/
+          token: ${{ secrets.CODECOV_TOKEN }}
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v3
