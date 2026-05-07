@@ -3,9 +3,6 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Registration from './Registration';
 
-// Mock the validation utilities to control behavior, though we can also test integration.
-// It's better to test integration here so we hit all lines if we don't mock it,
-// but we already have 100% coverage on validation.js. We will use the real validation.js.
 
 describe('Registration Component', () => {
     beforeEach(() => {
