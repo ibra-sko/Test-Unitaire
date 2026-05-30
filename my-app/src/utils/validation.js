@@ -55,7 +55,6 @@ export const isValidNameOrCity = (str) => {
  * @returns {boolean}
  */
 export const isValidEmail = (email) => {
-    // Regex standard pour validation basique d'email
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
 };
