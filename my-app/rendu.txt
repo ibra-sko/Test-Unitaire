@@ -1,0 +1,4 @@
+Lien du repository github public : https://github.com/ibra-sko/Test-Unitaire
+Lien du projet déployé sur github pages : https://ibra-sko.github.io/Test-Unitaire/
+Lien vers le package npm public : https://www.npmjs.com/package/ibra-sko-test-unitaire
+Lien vers le rapport de couverture codecov public : https://app.codecov.io/gh/ibra-sko/Test-Unitaire
