@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import Registration from './components/Registration/Registration';
 import AdminLogin from './components/AdminLogin/AdminLogin';
@@ -10,7 +10,7 @@ function App() {
   const [token, setToken] = useState(localStorage.getItem('adminToken') || null);
   const [loading, setLoading] = useState(true);
 
-  const fetchUsers = () => {
+  const fetchUsers = useCallback(() => {
     setLoading(true);
     getUsers(token)
       .then(data => {
@@ -21,11 +21,11 @@ function App() {
         console.error("Erreur lors de la récupération des utilisateurs:", error);
         setLoading(false);
       });
-  };
+  }, [token]);
 
   useEffect(() => {
     fetchUsers();
-  }, [token]);
+  }, [fetchUsers]);
 
   const handleLogin = (newToken) => {
     setToken(newToken);
