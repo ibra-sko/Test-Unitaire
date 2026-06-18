@@ -2,12 +2,16 @@ import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import App from './App';
+import axios from 'axios';
+
+jest.mock('axios');
 
 describe('App Component - Tests d\'intégration', () => {
     beforeEach(() => {
         localStorage.clear();
         jest.useFakeTimers();
         jest.setSystemTime(new Date('2024-05-07T00:00:00Z'));
+        axios.get.mockResolvedValue({ data: { utilisateurs: [] } });
     });
 
     afterEach(() => {
@@ -42,6 +46,29 @@ describe('App Component - Tests d\'intégration', () => {
             jest.advanceTimersByTime(3000);
         });
         expect(screen.queryByTestId('success-toaster')).not.toBeInTheDocument();
+    });
+
+    it('devrait récupérer le nombre d\'utilisateurs depuis l\'API', async () => {
+        axios.get.mockResolvedValueOnce({ data: { utilisateurs: [{}, {}, {}] } });
+        render(<App />);
+        
+        const countText = await screen.findByText(/Nombre d'utilisateurs inscrits en base de données : 3/i);
+        expect(countText).toBeInTheDocument();
+        expect(axios.get).toHaveBeenCalledWith(expect.stringContaining('/users'));
+    });
+
+    it('devrait gérer les erreurs de l\'API lors de la récupération des utilisateurs', async () => {
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+        axios.get.mockRejectedValueOnce(new Error('API Error'));
+        
+        render(<App />);
+        
+        await act(async () => {
+            await Promise.resolve();
+        });
+        
+        expect(consoleSpy).toHaveBeenCalledWith("Erreur lors de la récupération des utilisateurs:", expect.any(Error));
+        consoleSpy.mockRestore();
     });
 });
 
