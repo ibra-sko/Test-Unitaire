@@ -39,6 +39,12 @@ jobs:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       continue-on-error: true # Continuer même si le package existe déjà (même version)
 
+    - name: Cypress run
+      uses: cypress-io/github-action@v6
+      with:
+        build: npm run build
+        start: npm start
+
     - name: Deploy to GitHub Pages
       run: |
         git config --global user.name "github-actions[bot]"

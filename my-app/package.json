@@ -27,7 +27,8 @@
     "test": "react-scripts test --watchAll=false --coverage --collectCoverageFrom=\"src/**/*.{js,jsx}\" --collectCoverageFrom=\"module/**/*.{js,jsx}\" --collectCoverageFrom=\"!src/reportWebVitals.js\" --collectCoverageFrom=\"!src/index.js\"",
     "eject": "react-scripts eject",
     "predeploy": "npm run test && npm run build && cp -R coverage/lcov-report build/coverage",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d build",
+    "cypress": "cypress open"
   },
   "eslintConfig": {
     "extends": [
@@ -48,6 +49,7 @@
     ]
   },
   "devDependencies": {
+    "cypress": "^15.17.0",
     "gh-pages": "^6.3.0"
   }
 }

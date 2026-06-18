@@ -110,6 +110,7 @@ export default function Registration() {
 
       <div className="users-list">
         <h2>Liste des inscrits</h2>
+        <p>{users.length} user(s) already registered</p>
         <ul data-testid="users-list">
           {users.map((user, index) => (
             <li key={index} data-testid={`user-item-${index}`}>{user.prenom} {user.nom} - {user.ville}</li>
