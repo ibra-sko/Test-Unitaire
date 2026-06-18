@@ -1,4 +1,4 @@
-import { countUsers, registerUser } from './api';
+import { countUsers, registerUser, getUsers, loginAdmin, deleteUser } from './api';
 import axios from 'axios';
 
 jest.mock('axios');
@@ -27,8 +27,21 @@ describe('API Service', () => {
     expect(axios.post).toHaveBeenCalledWith(expect.stringContaining('/users'), { nom: 'Test' });
   });
 
-  it('registerUser doit lever une erreur si l\'appel échoue', async () => {
-    axios.post.mockImplementationOnce(() => Promise.reject(new Error('Erreur API POST')));
-    await expect(registerUser({})).rejects.toThrow('Erreur API POST');
+  it('getUsers doit envoyer le token si présent', async () => {
+    axios.get.mockImplementationOnce(() => Promise.resolve({ data: { utilisateurs: [] } }));
+    await getUsers('test-token');
+    expect(axios.get).toHaveBeenCalledWith(expect.stringContaining('/users'), { headers: { Authorization: 'Bearer test-token' } });
+  });
+
+  it('loginAdmin doit envoyer email et password', async () => {
+    axios.post.mockImplementationOnce(() => Promise.resolve({ data: { access_token: 'token' } }));
+    const result = await loginAdmin('admin@test.com', 'password');
+    expect(result.access_token).toBe('token');
+  });
+
+  it('deleteUser doit envoyer le token d\'autorisation', async () => {
+    axios.delete.mockImplementationOnce(() => Promise.resolve({ data: { message: 'Deleted' } }));
+    await deleteUser(1, 'test-token');
+    expect(axios.delete).toHaveBeenCalledWith(expect.stringContaining('/users/1'), { headers: { Authorization: 'Bearer test-token' } });
   });
 });

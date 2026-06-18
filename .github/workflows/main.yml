@@ -96,17 +96,31 @@ jobs:
       working-directory: ./database
       run: docker ps
 
-    - name: Wait for services to be healthy
+    - name: Wait for services to start
       run: sleep 60
 
-    - name: Check health for db
-      run: docker inspect --format "{{json .State.Health.Status }}" database-db-1 | jq -e '. == "healthy"'
-
-    - name: Check health for api
+    - name: Run Infrastructure Tests - Check API
       run: docker inspect --format "{{json .State.Health.Status }}" database-api-1 | jq -e '. == "healthy"'
 
-    - name: Check health for adminer
+    - name: Run Infrastructure Tests - Check Database
+      run: docker inspect --format "{{json .State.Health.Status }}" database-db-1 | jq -e '. == "healthy"'
+
+    - name: Run Infrastructure Tests - Check React
+      run: docker inspect --format "{{json .State.Health.Status }}" database-react-1 | jq -e '. == "healthy"'
+
+    - name: Run Infrastructure Tests - Check Adminer
       run: docker inspect --format "{{json .State.Health.Status }}" database-adminer-1 | jq -e '. == "healthy"'
 
-    - name: Check health for react
-      run: docker inspect --format "{{json .State.Health.Status }}" database-react-1 | jq -e '. == "healthy"'
+  deploy-vercel:
+    runs-on: ubuntu-latest
+    needs: [test-and-deploy, test-docker]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy Backend to Vercel
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          npm install -g vercel
+          vercel deploy --prod --token $VERCEL_TOKEN --env MYSQL_HOST=${{ secrets.PROD_MYSQL_HOST }} --env MYSQL_USER=${{ secrets.PROD_MYSQL_USER }} --env MYSQL_PASSWORD=${{ secrets.PROD_MYSQL_PASSWORD }} --env MYSQL_DATABASE=${{ secrets.PROD_MYSQL_DATABASE }} --env SECRET_KEY=${{ secrets.PROD_SECRET_KEY }} --yes

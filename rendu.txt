@@ -1,4 +1,6 @@
-Lien du repository github public : https://github.com/ibra-sko/Test-Unitaire
-Lien du projet déployé sur github pages : https://ibra-sko.github.io/Test-Unitaire/
-Lien vers le package npm public : https://www.npmjs.com/package/ibra-sko-test-unitaire
-Lien vers le rapport de couverture codecov public : https://app.codecov.io/gh/ibra-sko/Test-Unitaire
+- lien vers le repository : https://github.com/ibra-sko/Test-Unitaire
+- lien vers le frontend déployé sur github pages : https://ibra-sko.github.io/Test-Unitaire/
+- lien vers le backend déployé sur vercel : https://test-unitaire-backend.vercel.app/ (à vérifier après déploiement Vercel)
+- lien vers l’image docker du frontend sur le docker hub : https://hub.docker.com/repository/docker/ibrasko/frontend
+- lien vers l’image docker du backend sur le docker hub : https://hub.docker.com/repository/docker/ibrasko/backend
+- lien vers codecov : https://app.codecov.io/gh/ibra-sko/Test-Unitaire

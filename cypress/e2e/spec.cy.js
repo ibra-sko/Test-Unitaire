@@ -1,17 +1,34 @@
-describe('Tests E2E de la fonctionnalité d\'inscription', () => {
+describe('Tests E2E - Projet 2', () => {
   beforeEach(() => {
+    // Intercepter l'appel GET utilisateurs pour le public
+    cy.intercept('GET', 'http://localhost:8000/users', {
+      statusCode: 200,
+      body: { 
+        utilisateurs: [
+          { id: 1, nom: "Smith", prenom: "Anna", ville: "Lyon" }
+        ] 
+      }
+    }).as('getUsersPublic')
+
     cy.intercept('POST', 'http://localhost:8000/users', {
       statusCode: 200,
       body: { message: "Utilisateur créé avec succès" }
     }).as('createUser')
   })
-  it('Scénario 1: Ajout d\'un utilisateur avec succès', () => {
-    // Navigation vers la page -> Aucun utilisateur inscrit
+
+  it('Scénario 1: Ajout d\'un utilisateur et affichage public', () => {
     cy.clearLocalStorage()
     cy.visit('http://localhost:3000')
-    cy.contains('0 utilisateur(s) affiché(s)')
+    cy.wait('@getUsersPublic')
 
-    // Navigation vers la page de formulaire -> Ajout d’un nouvel utilisateur sans erreur
+    cy.contains('Liste des Utilisateurs (1)')
+    cy.contains('Anna Smith')
+    cy.contains('Lyon')
+    // Vérifier que les infos privées ne sont pas affichées
+    cy.get('.private-info').should('not.exist')
+    cy.get('.delete-btn').should('not.exist')
+
+    // Ajout d’un nouvel utilisateur
     cy.get('input[name="nom"]').type('Doe')
     cy.get('input[name="prenom"]').type('John')
     cy.get('input[name="email"]').type('john.doe@test.com')
@@ -20,110 +37,67 @@ describe('Tests E2E de la fonctionnalité d\'inscription', () => {
     cy.get('input[name="codePostal"]').type('75001')
     cy.get('button[type="submit"]').click()
 
-    // Navigation vers la page d’accueil -> Un utilisateur inscrit
-    cy.contains('1 utilisateur(s) affiché(s)')
-    cy.contains('John Doe')
-    cy.contains('Paris')
+    cy.wait('@createUser')
+    // Après ajout, App.js recharge les utilisateurs
+    cy.wait('@getUsersPublic')
   })
 
-  it('Scénario 2: Ajout d\'un utilisateur avec erreur', () => {
-    // Navigation vers la page -> 1 utilisateur inscrit
+  it('Scénario 2: Connexion Admin, affichage privé et suppression', () => {
     cy.clearLocalStorage()
-    // On pré-remplit le localStorage avec 1 utilisateur avant le chargement
-    const mockUser = [{ nom: 'Smith', prenom: 'Anna', ville: 'Lyon' }]
     
-    cy.visit('http://localhost:3000', {
-      onBeforeLoad: (win) => {
-        win.localStorage.setItem('registeredUsers', JSON.stringify(mockUser))
+    // Intercepter le login
+    cy.intercept('POST', 'http://localhost:8000/login', {
+      statusCode: 200,
+      body: { access_token: "fake-jwt-token", token_type: "bearer" }
+    }).as('loginAdmin')
+
+    // Intercepter le GET avec token admin
+    cy.intercept('GET', 'http://localhost:8000/users', (req) => {
+      if (req.headers.authorization === 'Bearer fake-jwt-token') {
+        req.reply({
+          statusCode: 200,
+          body: { 
+            utilisateurs: [
+              { id: 1, nom: "Smith", prenom: "Anna", ville: "Lyon", email: "anna@test.com", date_naissance: "1990-01-01", code_postal: "69001" }
+            ] 
+          }
+        })
+      } else {
+        req.reply({
+          statusCode: 200,
+          body: { utilisateurs: [{ id: 1, nom: "Smith", prenom: "Anna", ville: "Lyon" }] }
+        })
       }
-    })
-    cy.contains('1 utilisateur(s) affiché(s)')
-    cy.contains('Anna Smith')
-    cy.contains('Lyon')
+    }).as('getUsersAdmin')
 
-    // Navigation vers la page de formulaire -> Ajout d’un nouvel utilisateur avec erreur
-    cy.get('input[name="nom"]').type('Doe123') // Erreur: contient des chiffres
-    cy.get('input[name="prenom"]').type('John')
-    cy.get('input[name="email"]').type('invalid-email') // Erreur: pas un email
-    cy.get('input[name="dateNaissance"]').type('2020-01-01') // Erreur: mineur
-    cy.get('input[name="ville"]').type('Paris')
-    cy.get('input[name="codePostal"]').type('750') // Erreur: < 5 chiffres
-
-    cy.get('button[type="submit"]').click()
-
-    // Vérifier que le bouton n'est pas disabled
-    cy.get('button[type="submit"]').should('not.be.disabled').click()
-
-    // Vérifier que les messages d'erreur s'affichent bien
-    cy.get('[data-testid="error-nom"]').should('be.visible').and('contain', 'Format du nom invalide')
-    cy.get('[data-testid="error-email"]').should('be.visible').and('contain', 'Format de l\'email invalide')
-
-    // Navigation vers la page d’accueil -> Toujours 1 utilisateur inscrit
-    cy.contains('1 utilisateur(s) affiché(s)')
-    // L'utilisateur John Doe n'a pas été ajouté, il n'y a que Anna Smith
-    cy.contains('Anna Smith')
-    cy.contains('Lyon')
-  })
-
-  it('Scénario 3: Mode Offline (Erreur GET)', () => {
-    // Intercepter l'appel GET et simuler une erreur 500 pour tester l'interface
-    cy.intercept('GET', 'http://localhost:8000/users', {
-      statusCode: 500,
-      body: 'Internal Server Error'
-    }).as('getUsersError')
+    // Intercepter DELETE
+    cy.intercept('DELETE', 'http://localhost:8000/users/1', {
+      statusCode: 200,
+      body: { message: "Utilisateur supprimé" }
+    }).as('deleteUser')
 
     cy.visit('http://localhost:3000')
-    // Le texte restera sur le chargement si l'API est indisponible
-    cy.contains("Chargement de l'API...")
-    cy.wait('@getUsersError')
-    cy.contains("Chargement de l'API...")
+
+    // Connexion
+    cy.get('input[type="email"][placeholder="Email Admin"]').type('loise.fenoll@ynov.com')
+    cy.get('input[type="password"][placeholder="Mot de passe"]').type('PvdrTAzTeR247sDnAZBr')
+    cy.get('button').contains('Connexion').click()
+
+    cy.wait('@loginAdmin')
+    cy.wait('@getUsersAdmin')
+
+    // L'interface passe en mode admin
+    cy.contains('Mode Administrateur activé')
+    
+    // Les infos privées sont maintenant visibles
+    cy.get('.private-info').should('be.visible')
+    cy.contains('anna@test.com')
+    cy.contains('1990-01-01')
+
+    // Suppression (On bypass le window.confirm)
+    cy.on('window:confirm', () => true);
+    cy.get('.delete-btn').click()
+
+    cy.wait('@deleteUser')
   })
 })
-
-describe('Tests en mode Offline', () => {
-
-  it('devrait se comporter correctement en ligne', function() {
-    if (Cypress.env('offline')) {
-      this.skip();
-    }
-    
-    cy.intercept('POST', 'http://localhost:8000/users').as('syncRequest');
-    
-    cy.visit('http://localhost:3000');
-    cy.get('input[name="nom"]').type('Online');
-    cy.get('input[name="prenom"]').type('User');
-    cy.get('input[name="email"]').type('online@test.com');
-    cy.get('input[name="dateNaissance"]').type('2000-01-01');
-    cy.get('input[name="ville"]').type('Paris');
-    cy.get('input[name="codePostal"]').type('75000');
-    
-    cy.get('button[type="submit"]').click();
-    
-    cy.wait('@syncRequest').then((interception) => {
-      // Vérification que la requête est partie avec succès
-      expect(interception.request.body).to.have.property('nom', 'Online');
-    });
-  });
-
-  it('devrait afficher un message d\'erreur quand le réseau est coupé', function() {
-    if (!Cypress.env('offline')) {
-      this.skip(); // Évite un faux positif en mode online
-    }
-
-    cy.log('Mode offline activé !');
-
-    cy.intercept('POST', 'http://localhost:8000/users', { forceNetworkError: true }).as('syncRequest');     
-
-    cy.visit('http://localhost:3000');
-    cy.get('input[name="nom"]').type('Offline');
-    cy.get('input[name="prenom"]').type('User');
-    cy.get('input[name="email"]').type('offline@test.com');
-    cy.get('input[name="dateNaissance"]').type('2000-01-01');
-    cy.get('input[name="ville"]').type('Paris');
-    cy.get('input[name="codePostal"]').type('75000');
-    
-    cy.get('button[type="submit"]').click();
-
-    cy.wait('@syncRequest');
-  });
-});

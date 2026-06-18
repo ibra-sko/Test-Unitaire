@@ -1,4 +1,5 @@
 FROM python:3.9
 WORKDIR /server
-RUN pip install mysql-connector-python fastapi uvicorn python-dotenv
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 EXPOSE 8000

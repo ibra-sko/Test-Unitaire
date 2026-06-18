@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './Registration.css';
 import { isAdult, isValidZipCode, isValidNameOrCity, isValidEmail } from '../../utils/validation';
 import { registerUser } from '../../utils/api';
@@ -12,16 +12,10 @@ const initialFormState = {
   codePostal: ''
 };
 
-export default function Registration() {
+export default function Registration({ onUserAdded }) {
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
   const [showToaster, setShowToaster] = useState(false);
-  const [users, setUsers] = useState([]);
-
-  useEffect(() => {
-    const savedUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-    setUsers(savedUsers);
-  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -53,10 +47,10 @@ export default function Registration() {
       try {
         await registerUser(formData);
 
-        // Save to local storage
-        const newUsers = [...users, formData];
-        localStorage.setItem('registeredUsers', JSON.stringify(newUsers));
-        setUsers(newUsers);
+        // Notify App to refresh users
+        if (onUserAdded) {
+          onUserAdded();
+        }
 
         // Show toaster
         setShowToaster(true);
@@ -118,21 +112,6 @@ export default function Registration() {
 
         <button type="submit" className="submit-btn" disabled={!isFormFilled} data-testid="submit-btn">Sauvegarder</button>
       </form>
-
-      <div className="users-list">
-        <h2>Liste des inscrits</h2>
-        <p>{users.length} utilisateur(s) affiché(s)</p>
-        <ul data-testid="users-list">
-          {users.map((user, index) => (
-            <li key={index} data-testid={`user-item-${index}`}>
-              <div className="user-info">
-                <strong>{user.prenom} {user.nom}</strong>
-                <span className="user-city">📍 {user.ville}</span>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
     </div>
   );
 }
