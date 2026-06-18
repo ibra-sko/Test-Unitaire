@@ -42,8 +42,7 @@ def get_db_connection():
         database=os.getenv("MYSQL_DATABASE"),
         user=os.getenv("MYSQL_USER"),
         password=os.getenv("MYSQL_PASSWORD", os.getenv("MYSQL_ROOT_PASSWORD")),
-        # Aiven impose SSL (ssl-mode=REQUIRED). On active TLS sans vérifier
-        # le certificat CA (chiffrement requis, pas de VERIFY_CA).
+        
         ssl_disabled=False,
     )
 

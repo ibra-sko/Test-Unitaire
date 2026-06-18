@@ -44,4 +44,35 @@ describe('API Service', () => {
     await deleteUser(1, 'test-token');
     expect(axios.delete).toHaveBeenCalledWith(expect.stringContaining('/users/1'), { headers: { Authorization: 'Bearer test-token' } });
   });
+
+  it('utilise REACT_APP_API_URL quand la variable est définie', async () => {
+    const original = process.env.REACT_APP_API_URL;
+    process.env.REACT_APP_API_URL = 'https://api.prod.com';
+    jest.resetModules();
+    const freshAxios = require('axios');
+    freshAxios.get.mockResolvedValueOnce({ data: { utilisateurs: [] } });
+    const { getUsers: freshGetUsers } = require('./api');
+
+    await freshGetUsers();
+    expect(freshAxios.get).toHaveBeenCalledWith('https://api.prod.com/users', {});
+
+    process.env.REACT_APP_API_URL = original;
+  });
+
+  it('retombe sur le port 8000 par défaut sans REACT_APP_SERVER_PORT', async () => {
+    const originalUrl = process.env.REACT_APP_API_URL;
+    const originalPort = process.env.REACT_APP_SERVER_PORT;
+    delete process.env.REACT_APP_API_URL;
+    delete process.env.REACT_APP_SERVER_PORT;
+    jest.resetModules();
+    const freshAxios = require('axios');
+    freshAxios.get.mockResolvedValueOnce({ data: { utilisateurs: [] } });
+    const { getUsers: freshGetUsers } = require('./api');
+
+    await freshGetUsers();
+    expect(freshAxios.get).toHaveBeenCalledWith('http://localhost:8000/users', {});
+
+    process.env.REACT_APP_API_URL = originalUrl;
+    process.env.REACT_APP_SERVER_PORT = originalPort;
+  });
 });

@@ -1,18 +1,161 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1777974366032" clover="3.2.0">
-  <project timestamp="1777974366032" name="All files">
-    <metrics statements="9" coveredstatements="9" conditionals="8" coveredconditionals="8" methods="1" coveredmethods="1" elements="18" coveredelements="18" complexity="0" loc="9" ncloc="9" packages="1" files="1" classes="1"/>
-    <file name="module.js" path="/Users/ibrahim/Documents/Cours Ci 2026/module.js">
-      <metrics statements="9" coveredstatements="9" conditionals="8" coveredconditionals="8" methods="1" coveredmethods="1"/>
-      <line num="8" count="9" type="cond" truecount="2" falsecount="0"/>
-      <line num="9" count="2" type="stmt"/>
-      <line num="12" count="7" type="cond" truecount="2" falsecount="0"/>
-      <line num="13" count="4" type="stmt"/>
-      <line num="16" count="3" type="cond" truecount="4" falsecount="0"/>
-      <line num="17" count="2" type="stmt"/>
-      <line num="19" count="1" type="stmt"/>
-      <line num="20" count="1" type="stmt"/>
-      <line num="21" count="1" type="stmt"/>
-    </file>
+<coverage generated="1781788902968" clover="3.2.0">
+  <project timestamp="1781788902968" name="All files">
+    <metrics statements="122" coveredstatements="122" conditionals="76" coveredconditionals="76" methods="34" coveredmethods="34" elements="232" coveredelements="232" complexity="0" loc="122" ncloc="122" packages="5" files="6" classes="6"/>
+    <package name="src">
+      <metrics statements="19" coveredstatements="19" conditionals="4" coveredconditionals="4" methods="7" coveredmethods="7"/>
+      <file name="App.js" path="/Users/ibrahim/Documents/Cours Ci 2026/src/App.js">
+        <metrics statements="19" coveredstatements="19" conditionals="4" coveredconditionals="4" methods="7" coveredmethods="7"/>
+        <line num="9" count="13" type="stmt"/>
+        <line num="10" count="13" type="cond" truecount="2" falsecount="0"/>
+        <line num="11" count="13" type="stmt"/>
+        <line num="13" count="13" type="stmt"/>
+        <line num="14" count="7" type="stmt"/>
+        <line num="15" count="7" type="stmt"/>
+        <line num="17" count="6" type="stmt"/>
+        <line num="18" count="6" type="stmt"/>
+        <line num="21" count="1" type="stmt"/>
+        <line num="22" count="1" type="stmt"/>
+        <line num="26" count="13" type="stmt"/>
+        <line num="27" count="6" type="stmt"/>
+        <line num="30" count="13" type="stmt"/>
+        <line num="31" count="1" type="stmt"/>
+        <line num="32" count="1" type="stmt"/>
+        <line num="35" count="13" type="stmt"/>
+        <line num="36" count="1" type="stmt"/>
+        <line num="37" count="1" type="stmt"/>
+        <line num="40" count="13" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.components.AdminLogin">
+      <metrics statements="18" coveredstatements="18" conditionals="6" coveredconditionals="6" methods="4" coveredmethods="4"/>
+      <file name="AdminLogin.js" path="/Users/ibrahim/Documents/Cours Ci 2026/src/components/AdminLogin/AdminLogin.js">
+        <metrics statements="18" coveredstatements="18" conditionals="6" coveredconditionals="6" methods="4" coveredmethods="4"/>
+        <line num="5" count="2" type="stmt"/>
+        <line num="6" count="33" type="stmt"/>
+        <line num="7" count="33" type="stmt"/>
+        <line num="8" count="33" type="stmt"/>
+        <line num="10" count="33" type="stmt"/>
+        <line num="11" count="4" type="stmt"/>
+        <line num="12" count="4" type="stmt"/>
+        <line num="13" count="4" type="stmt"/>
+        <line num="14" count="4" type="stmt"/>
+        <line num="15" count="2" type="stmt"/>
+        <line num="16" count="2" type="stmt"/>
+        <line num="17" count="2" type="stmt"/>
+        <line num="19" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="23" count="33" type="cond" truecount="2" falsecount="0"/>
+        <line num="24" count="4" type="stmt"/>
+        <line num="32" count="29" type="stmt"/>
+        <line num="40" count="4" type="stmt"/>
+        <line num="47" count="4" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.components.Registration">
+      <metrics statements="35" coveredstatements="35" conditionals="38" coveredconditionals="38" methods="9" coveredmethods="9"/>
+      <file name="Registration.js" path="/Users/ibrahim/Documents/Cours Ci 2026/src/components/Registration/Registration.js">
+        <metrics statements="35" coveredstatements="35" conditionals="38" coveredconditionals="38" methods="9" coveredmethods="9"/>
+        <line num="6" count="2" type="stmt"/>
+        <line num="16" count="82" type="stmt"/>
+        <line num="17" count="82" type="stmt"/>
+        <line num="18" count="82" type="stmt"/>
+        <line num="20" count="82" type="stmt"/>
+        <line num="21" count="49" type="stmt"/>
+        <line num="22" count="49" type="stmt"/>
+        <line num="23" count="49" type="cond" truecount="2" falsecount="0"/>
+        <line num="24" count="1" type="stmt"/>
+        <line num="28" count="82" type="stmt"/>
+        <line num="29" count="7" type="stmt"/>
+        <line num="30" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="31" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="32" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="33" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="34" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="35" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="37" count="7" type="stmt"/>
+        <line num="38" count="7" type="stmt"/>
+        <line num="42" count="287" type="cond" truecount="2" falsecount="0"/>
+        <line num="44" count="82" type="stmt"/>
+        <line num="45" count="7" type="stmt"/>
+        <line num="46" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="47" count="5" type="stmt"/>
+        <line num="48" count="5" type="stmt"/>
+        <line num="51" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="52" count="2" type="stmt"/>
+        <line num="56" count="3" type="stmt"/>
+        <line num="57" count="3" type="stmt"/>
+        <line num="60" count="3" type="stmt"/>
+        <line num="61" count="3" type="stmt"/>
+        <line num="63" count="2" type="cond" truecount="4" falsecount="0"/>
+        <line num="64" count="1" type="stmt"/>
+        <line num="66" count="1" type="stmt"/>
+        <line num="72" count="82" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.components.UserList">
+      <metrics statements="10" coveredstatements="10" conditionals="8" coveredconditionals="8" methods="4" coveredmethods="4"/>
+      <file name="UserList.js" path="/Users/ibrahim/Documents/Cours Ci 2026/src/components/UserList/UserList.js">
+        <metrics statements="10" coveredstatements="10" conditionals="8" coveredconditionals="8" methods="4" coveredmethods="4"/>
+        <line num="5" count="2" type="stmt"/>
+        <line num="6" count="13" type="stmt"/>
+        <line num="7" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="8" count="2" type="stmt"/>
+        <line num="9" count="2" type="stmt"/>
+        <line num="10" count="1" type="stmt"/>
+        <line num="12" count="1" type="stmt"/>
+        <line num="17" count="13" type="stmt"/>
+        <line num="25" count="9" type="stmt"/>
+        <line num="40" count="3" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.utils">
+      <metrics statements="40" coveredstatements="40" conditionals="20" coveredconditionals="20" methods="10" coveredmethods="10"/>
+      <file name="api.js" path="/Users/ibrahim/Documents/Cours Ci 2026/src/utils/api.js">
+        <metrics statements="18" coveredstatements="18" conditionals="7" coveredconditionals="7" methods="5" coveredmethods="5"/>
+        <line num="6" count="7" type="cond" truecount="4" falsecount="0"/>
+        <line num="8" count="7" type="stmt"/>
+        <line num="9" count="2" type="stmt"/>
+        <line num="10" count="1" type="stmt"/>
+        <line num="13" count="7" type="cond" truecount="1" falsecount="0"/>
+        <line num="14" count="10" type="cond" truecount="2" falsecount="0"/>
+        <line num="15" count="10" type="stmt"/>
+        <line num="16" count="9" type="stmt"/>
+        <line num="19" count="7" type="stmt"/>
+        <line num="20" count="6" type="stmt"/>
+        <line num="21" count="4" type="stmt"/>
+        <line num="24" count="7" type="stmt"/>
+        <line num="25" count="5" type="stmt"/>
+        <line num="26" count="3" type="stmt"/>
+        <line num="29" count="7" type="stmt"/>
+        <line num="30" count="3" type="stmt"/>
+        <line num="31" count="3" type="stmt"/>
+        <line num="32" count="2" type="stmt"/>
+      </file>
+      <file name="validation.js" path="/Users/ibrahim/Documents/Cours Ci 2026/src/utils/validation.js">
+        <metrics statements="22" coveredstatements="22" conditionals="13" coveredconditionals="13" methods="5" coveredmethods="5"/>
+        <line num="6" count="3" type="stmt"/>
+        <line num="7" count="18" type="cond" truecount="2" falsecount="0"/>
+        <line num="8" count="15" type="stmt"/>
+        <line num="9" count="15" type="stmt"/>
+        <line num="10" count="15" type="cond" truecount="2" falsecount="0"/>
+        <line num="12" count="14" type="stmt"/>
+        <line num="13" count="14" type="stmt"/>
+        <line num="14" count="14" type="cond" truecount="5" falsecount="0"/>
+        <line num="15" count="2" type="stmt"/>
+        <line num="17" count="14" type="stmt"/>
+        <line num="25" count="3" type="stmt"/>
+        <line num="26" count="11" type="stmt"/>
+        <line num="34" count="3" type="stmt"/>
+        <line num="35" count="14" type="stmt"/>
+        <line num="36" count="14" type="stmt"/>
+        <line num="46" count="3" type="stmt"/>
+        <line num="47" count="33" type="cond" truecount="4" falsecount="0"/>
+        <line num="48" count="29" type="stmt"/>
+        <line num="49" count="29" type="stmt"/>
+        <line num="57" count="3" type="stmt"/>
+        <line num="58" count="16" type="stmt"/>
+        <line num="59" count="16" type="stmt"/>
+      </file>
+    </package>
   </project>
 </coverage>

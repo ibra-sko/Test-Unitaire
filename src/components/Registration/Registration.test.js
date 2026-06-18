@@ -29,11 +29,14 @@ describe('Registration Component', () => {
         fireEvent.change(screen.getByTestId('input-codePostal'), { target: { name: 'codePostal', value: data.codePostal } });
     };
 
-    it('should render form and load existing users from localStorage', () => {
-        localStorage.setItem('registeredUsers', JSON.stringify([{ nom: 'Doe', prenom: 'John', ville: 'Paris' }]));
+    it('should render all form fields with the submit button disabled initially', () => {
         render(<Registration />);
-        expect(screen.getByTestId('user-item-0')).toHaveTextContent(/John Doe/i);
-        expect(screen.getByTestId('user-item-0')).toHaveTextContent(/Paris/i);
+        expect(screen.getByTestId('input-nom')).toBeInTheDocument();
+        expect(screen.getByTestId('input-prenom')).toBeInTheDocument();
+        expect(screen.getByTestId('input-email')).toBeInTheDocument();
+        expect(screen.getByTestId('input-dateNaissance')).toBeInTheDocument();
+        expect(screen.getByTestId('input-ville')).toBeInTheDocument();
+        expect(screen.getByTestId('input-codePostal')).toBeInTheDocument();
         expect(screen.getByTestId('submit-btn')).toBeDisabled();
     });
 
@@ -102,8 +105,9 @@ describe('Registration Component', () => {
         expect(screen.queryByTestId('error-nom')).not.toBeInTheDocument();
     });
 
-    it('should successfully submit form, show toaster, clear fields, and update list', async () => {
-        render(<Registration />);
+    it('should submit form via API, call onUserAdded, show toaster, and clear fields', async () => {
+        const onUserAdded = jest.fn();
+        render(<Registration onUserAdded={onUserAdded} />);
         fillForm({
             nom: 'Doe',
             prenom: 'John',
@@ -120,16 +124,12 @@ describe('Registration Component', () => {
         // Toaster should appear
         expect(screen.getByTestId('success-toaster')).toBeInTheDocument();
 
-        // User should be in the list
-        expect(screen.getByTestId('user-item-0')).toHaveTextContent(/John Doe/i);
-        expect(screen.getByTestId('user-item-0')).toHaveTextContent(/Paris/i);
-
-
-
-        // LocalStorage should be updated
-        const stored = JSON.parse(localStorage.getItem('registeredUsers'));
-        expect(stored.length).toBe(1);
-        expect(stored[0].nom).toBe('Doe');
+        // The API should have been called and the parent notified
+        expect(axios.post).toHaveBeenCalledWith(
+            expect.stringContaining('/users'),
+            expect.objectContaining({ nom: 'Doe', prenom: 'John', ville: 'Paris' })
+        );
+        expect(onUserAdded).toHaveBeenCalled();
 
         // Form fields should be cleared
         expect(screen.getByTestId('input-nom')).toHaveValue('');
@@ -141,5 +141,64 @@ describe('Registration Component', () => {
         });
 
         expect(screen.queryByTestId('success-toaster')).not.toBeInTheDocument();
+    });
+
+    it('se soumet sans erreur même si onUserAdded n\'est pas fourni', async () => {
+        render(<Registration />);
+        fillForm({
+            nom: 'Doe',
+            prenom: 'John',
+            email: 'test@example.com',
+            dateNaissance: '2000-01-01',
+            ville: 'Paris',
+            codePostal: '75001'
+        });
+
+        await act(async () => {
+            fireEvent.click(screen.getByTestId('submit-btn'));
+        });
+
+        expect(screen.getByTestId('success-toaster')).toBeInTheDocument();
+    });
+
+    it('affiche une erreur sur le champ email si l\'API renvoie un statut 400', async () => {
+        axios.post.mockRejectedValueOnce({ response: { status: 400, data: { detail: 'Cet email est déjà utilisé' } } });
+        render(<Registration onUserAdded={jest.fn()} />);
+        fillForm({
+            nom: 'Doe',
+            prenom: 'John',
+            email: 'doublon@example.com',
+            dateNaissance: '2000-01-01',
+            ville: 'Paris',
+            codePostal: '75001'
+        });
+
+        await act(async () => {
+            fireEvent.click(screen.getByTestId('submit-btn'));
+        });
+
+        expect(screen.getByTestId('error-email')).toHaveTextContent('Cet email est déjà utilisé');
+        expect(screen.queryByTestId('success-toaster')).not.toBeInTheDocument();
+    });
+
+    it('logue l\'erreur si l\'API échoue avec une autre erreur', async () => {
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+        axios.post.mockRejectedValueOnce(new Error('Server down'));
+        render(<Registration onUserAdded={jest.fn()} />);
+        fillForm({
+            nom: 'Doe',
+            prenom: 'John',
+            email: 'test@example.com',
+            dateNaissance: '2000-01-01',
+            ville: 'Paris',
+            codePostal: '75001'
+        });
+
+        await act(async () => {
+            fireEvent.click(screen.getByTestId('submit-btn'));
+        });
+
+        expect(consoleSpy).toHaveBeenCalledWith('Erreur API:', expect.any(Error));
+        consoleSpy.mockRestore();
     });
 });
