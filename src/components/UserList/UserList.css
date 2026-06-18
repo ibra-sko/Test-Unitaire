@@ -1,58 +1,114 @@
 .user-list-container {
-  margin: 20px auto;
-  max-width: 600px;
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  margin: 40px auto;
+  max-width: 650px;
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 30px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  animation: slideUpFade 0.5s ease forwards;
+}
+
+.user-list-container h3 {
+  margin: 0 0 20px;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #f8fafc;
+  letter-spacing: 0.3px;
+}
+
+.user-list-container > p {
+  color: #94a3b8;
+  text-align: center;
+  font-size: 0.95rem;
+  padding: 10px 0;
 }
 
 .user-list {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .user-item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 15px;
-  border-bottom: 1px solid #eee;
+  align-items: flex-start;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 16px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
 }
 
-.user-item:last-child {
-  border-bottom: none;
+.user-item:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateX(6px);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .user-info {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
+  text-align: left;
+  min-width: 0;
+}
+
+.user-info strong {
+  color: #38bdf8;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.user-info > span {
+  font-size: 0.9rem;
+  color: #cbd5e1;
 }
 
 .private-info {
-  margin-top: 10px;
-  padding: 10px;
-  background: #fff3cd;
-  border-left: 4px solid #ffc107;
-  border-radius: 4px;
-  font-size: 0.9em;
+  margin-top: 8px;
+  padding: 10px 14px;
+  background: rgba(56, 189, 248, 0.08);
+  border-left: 3px solid #38bdf8;
+  border-radius: 8px;
+  font-size: 0.88rem;
 }
 
 .private-info p {
-  margin: 2px 0;
+  margin: 3px 0;
+  color: #e2e8f0;
 }
 
 .delete-btn {
-  background: #dc3545;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 4px;
+  flex: 0 0 auto;
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  padding: 8px 16px;
+  border-radius: 8px;
   cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
 }
 
 .delete-btn:hover {
-  background: #c82333;
+  background: rgba(239, 68, 68, 0.85);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(239, 68, 68, 0.35);
+}
+
+@keyframes slideUpFade {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
