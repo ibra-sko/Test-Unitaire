@@ -130,5 +130,9 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "::error::Le secret VERCEL_TOKEN est manquant. Ajoute-le dans Settings > Secrets and variables > Actions."
+            exit 1
+          fi
           npm install -g vercel
-          vercel deploy --prod --token $VERCEL_TOKEN --yes
+          vercel deploy --prod --yes --token "$VERCEL_TOKEN"
