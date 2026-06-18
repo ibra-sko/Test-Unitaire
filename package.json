@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "vercel-build": "cd my-app && npm install && npm run build"
+  },
   "devDependencies": {
     "gh-pages": "^6.3.0"
   }
