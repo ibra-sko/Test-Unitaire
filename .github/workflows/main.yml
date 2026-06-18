@@ -55,6 +55,8 @@ jobs:
         npm run deploy
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # URL du backend deploye sur Vercel (gravee dans le build CRA via predeploy).
+        REACT_APP_API_URL: https://cicd-7br6ctc3y-ibrahims-projects-715c4bad.vercel.app
 
   build-docker:
     runs-on: ubuntu-latest
