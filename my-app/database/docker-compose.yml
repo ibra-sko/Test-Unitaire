@@ -1,0 +1,80 @@
+version: '3.1'
+
+services:
+
+  api:
+    build:
+      context: ../server
+      dockerfile: Dockerfile
+    image: api_server
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - ../server/.env
+    environment:
+      - MYSQL_HOST=db
+    volumes:
+      - ../server:/server
+    command: uvicorn server:app --host 0.0.0.0 --port 8000
+    healthcheck:
+      test: [ "CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/users')\" || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  db:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: migration_mysql
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ./sqlfiles:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8080 || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  react:
+    image: react
+    build:
+      context: ..
+      dockerfile: DockerfileReact
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_SERVER_PORT=8000
+    volumes:
+      - ..:/app
+      - /app/node_modules
+    depends_on:
+      api:
+        condition: service_healthy
+    command: npm start
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:3000 || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
