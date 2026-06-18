@@ -1,4 +1,8 @@
-server/
-database/
 cypress/
 .github/
+coverage/
+node_modules/
+.venv/
+server/.venv/
+server/venv/
+server/__pycache__/
