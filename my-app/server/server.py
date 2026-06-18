@@ -1,7 +1,8 @@
 import mysql.connector
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 from dotenv import load_dotenv
 
 # Charger les variables d'environnement depuis le fichier .env
@@ -37,3 +38,27 @@ async def get_users():
     print("Total number of rows in table: ", cursor.rowcount)
     # renvoyer nos données et 200 code OK
     return {'utilisateurs': records}
+
+class UserCreate(BaseModel):
+    nom: str
+    prenom: str
+    email: str
+    dateNaissance: str
+    ville: str
+    codePostal: str
+
+@app.post("/users")
+async def create_user(user: UserCreate):
+    try:
+        cursor = conn.cursor()
+        sql_insert_query = """
+        INSERT INTO utilisateurs (nom, prenom, email, date_naissance, ville, code_postal)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        cursor.execute(sql_insert_query, (user.nom, user.prenom, user.email, user.dateNaissance, user.ville, user.codePostal))
+        conn.commit()
+        return {"message": "Utilisateur créé avec succès"}
+    except mysql.connector.Error as err:
+        if err.errno == 1062: # Duplicate entry
+            raise HTTPException(status_code=400, detail="Cet email est déjà utilisé")
+        raise HTTPException(status_code=500, detail=str(err))

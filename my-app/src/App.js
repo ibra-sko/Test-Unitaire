@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import Registration from './components/Registration/Registration';
-import axios from 'axios';
+import { countUsers } from './utils/api';
 
 function App() {
   const [userCount, setUserCount] = useState(null);
 
   useEffect(() => {
     // Utilisation du port passé en variable d'environnement (avec 8000 par défaut si non défini)
-    const port = process.env.REACT_APP_SERVER_PORT || 8000;
-    axios.get(`http://localhost:${port}/users`)
-      .then(response => {
-        // L'API Python renvoie un dictionnaire avec la clé 'utilisateurs' contenant le tableau
-        setUserCount(response.data.utilisateurs.length);
+    countUsers()
+      .then(count => {
+        setUserCount(count);
       })
       .catch(error => {
         console.error("Erreur lors de la récupération des utilisateurs:", error);
@@ -20,20 +18,20 @@ function App() {
   }, []);
 
   return (
-    <div>
+    <div className="app-container">
       <Registration />
-      <div style={{ textAlign: 'center', marginTop: '30px', fontSize: '18px', fontWeight: 'bold' }}>
-        {userCount !== null ? (
-          <p>👨‍💻 Nombre d'utilisateurs inscrits en base de données : {userCount}</p>
-        ) : (
-          <p>⏳ Chargement des utilisateurs depuis l'API...</p>
-        )}
-      </div>
-      <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '14px' }}>
-        <a href="https://github.com/ibra-sko/Test-Unitaire#readme" target="_blank" rel="noopener noreferrer">
-          📖 Lire la documentation (README)
+      <footer className="app-footer">
+        <div className="db-count">
+          {userCount !== null ? (
+            <span>👨‍💻 {userCount} utilisateur(s) inscrit(s) en base de données</span>
+          ) : (
+            <span>⏳ Chargement de l'API...</span>
+          )}
+        </div>
+        <a href="https://github.com/ibra-sko/Test-Unitaire#readme" className="readme-link" target="_blank" rel="noopener noreferrer">
+          📖 Consulter la documentation (README)
         </a>
-      </div>
+      </footer>
     </div>
   );
 }

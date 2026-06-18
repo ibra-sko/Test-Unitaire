@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Registration.css';
 import { isAdult, isValidZipCode, isValidNameOrCity, isValidEmail } from '../../utils/validation';
+import { registerUser } from '../../utils/api';
 
 const initialFormState = {
   nom: '',
@@ -46,29 +47,39 @@ export default function Registration() {
   // Button non clickable si un champ est vide
   const isFormFilled = Object.values(formData).every(val => val && val.trim() !== '');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-      // Save to local storage
-      const newUsers = [...users, formData];
-      localStorage.setItem('registeredUsers', JSON.stringify(newUsers));
-      setUsers(newUsers);
-      
-      // Show toaster
-      setShowToaster(true);
-      setTimeout(() => setShowToaster(false), 3000);
-      
-      // Reset fields
-      setFormData(initialFormState);
-      setErrors({});
+      try {
+        await registerUser(formData);
+
+        // Save to local storage
+        const newUsers = [...users, formData];
+        localStorage.setItem('registeredUsers', JSON.stringify(newUsers));
+        setUsers(newUsers);
+
+        // Show toaster
+        setShowToaster(true);
+        setTimeout(() => setShowToaster(false), 3000);
+
+        // Reset fields
+        setFormData(initialFormState);
+        setErrors({});
+      } catch (error) {
+        if (error.response && error.response.status === 400) {
+          setErrors(prev => ({ ...prev, email: error.response.data.detail }));
+        } else {
+          console.error("Erreur API:", error);
+        }
+      }
     }
   };
 
   return (
     <div className="registration-container">
       {showToaster && <div className="toaster" data-testid="success-toaster">Inscription réussie !</div>}
-      
-      <form className="registration-form" onSubmit={handleSubmit}>
+
+      <form className="registration-form" onSubmit={handleSubmit} noValidate>
         <div className="form-group">
           <label>Nom</label>
           <input type="text" name="nom" value={formData.nom} onChange={handleChange} data-testid="input-nom" />
@@ -110,10 +121,15 @@ export default function Registration() {
 
       <div className="users-list">
         <h2>Liste des inscrits</h2>
-        <p>{users.length} user(s) already registered</p>
+        <p>{users.length} utilisateur(s) affiché(s)</p>
         <ul data-testid="users-list">
           {users.map((user, index) => (
-            <li key={index} data-testid={`user-item-${index}`}>{user.prenom} {user.nom} - {user.ville}</li>
+            <li key={index} data-testid={`user-item-${index}`}>
+              <div className="user-info">
+                <strong>{user.prenom} {user.nom}</strong>
+                <span className="user-city">📍 {user.ville}</span>
+              </div>
+            </li>
           ))}
         </ul>
       </div>

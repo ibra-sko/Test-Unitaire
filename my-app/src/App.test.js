@@ -12,6 +12,7 @@ describe('App Component - Tests d\'intégration', () => {
         jest.useFakeTimers();
         jest.setSystemTime(new Date('2024-05-07T00:00:00Z'));
         axios.get.mockResolvedValue({ data: { utilisateurs: [] } });
+        axios.post.mockResolvedValue({ data: {} });
     });
 
     afterEach(() => {
@@ -19,7 +20,7 @@ describe('App Component - Tests d\'intégration', () => {
         jest.clearAllMocks();
     });
 
-    it('devrait permettre de remplir le formulaire et de le soumettre (Integration Test)', () => {
+    it('devrait permettre de remplir le formulaire et de le soumettre (Integration Test)', async () => {
         render(<App />);
         
         // Remplir le formulaire
@@ -35,14 +36,17 @@ describe('App Component - Tests d\'intégration', () => {
         expect(btn).not.toBeDisabled();
 
         // Soumettre le formulaire
-        fireEvent.click(btn);
+        await act(async () => {
+            fireEvent.click(btn);
+        });
 
         // Vérifier le succès et l'ajout dans la liste
         expect(screen.getByTestId('success-toaster')).toBeInTheDocument();
-        expect(screen.getByTestId('user-item-0')).toHaveTextContent('Jean Dupont - Paris');
+        expect(screen.getByTestId('user-item-0')).toHaveTextContent(/Jean Dupont/i);
+        expect(screen.getByTestId('user-item-0')).toHaveTextContent(/Paris/i);
 
         // Attendre que le toaster disparaisse
-        act(() => {
+        await act(async () => {
             jest.advanceTimersByTime(3000);
         });
         expect(screen.queryByTestId('success-toaster')).not.toBeInTheDocument();
@@ -52,7 +56,7 @@ describe('App Component - Tests d\'intégration', () => {
         axios.get.mockResolvedValueOnce({ data: { utilisateurs: [{}, {}, {}] } });
         render(<App />);
         
-        const countText = await screen.findByText(/Nombre d'utilisateurs inscrits en base de données : 3/i);
+        const countText = await screen.findByText(/3 utilisateur\(s\) inscrit\(s\) en base de données/i);
         expect(countText).toBeInTheDocument();
         expect(axios.get).toHaveBeenCalledWith(expect.stringContaining('/users'));
     });

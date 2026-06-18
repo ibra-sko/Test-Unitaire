@@ -24,7 +24,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --watchAll=false --coverage --collectCoverageFrom=\"src/**/*.{js,jsx}\" --collectCoverageFrom=\"module/**/*.{js,jsx}\" --collectCoverageFrom=\"!src/reportWebVitals.js\" --collectCoverageFrom=\"!src/index.js\"",
+    "test": "react-scripts test --watchAll=false --setupFiles=./.jest/setEnvVars.js --coverage --collectCoverageFrom=\"src/**/*.{js,jsx}\" --collectCoverageFrom=\"module/**/*.{js,jsx}\" --collectCoverageFrom=\"!src/reportWebVitals.js\" --collectCoverageFrom=\"!src/index.js\"",
     "eject": "react-scripts eject",
     "predeploy": "npm run test && npm run build && cp -R coverage/lcov-report build/coverage",
     "deploy": "gh-pages -d build",
@@ -51,5 +51,10 @@
   "devDependencies": {
     "cypress": "^15.17.0",
     "gh-pages": "^6.3.0"
+  },
+  "jest": {
+    "transformIgnorePatterns": [
+      "node_modules/(?!axios)/"
+    ]
   }
 }

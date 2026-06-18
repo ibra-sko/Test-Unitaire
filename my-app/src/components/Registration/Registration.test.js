@@ -2,7 +2,9 @@ import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Registration from './Registration';
+import axios from 'axios';
 
+jest.mock('axios');
 
 describe('Registration Component', () => {
     beforeEach(() => {
@@ -10,6 +12,7 @@ describe('Registration Component', () => {
         localStorage.clear();
         jest.useFakeTimers();
         jest.setSystemTime(new Date('2024-05-07T00:00:00Z'));
+        axios.post.mockResolvedValue({ data: {} });
     });
 
     afterEach(() => {
@@ -29,7 +32,8 @@ describe('Registration Component', () => {
     it('should render form and load existing users from localStorage', () => {
         localStorage.setItem('registeredUsers', JSON.stringify([{ nom: 'Doe', prenom: 'John', ville: 'Paris' }]));
         render(<Registration />);
-        expect(screen.getByTestId('user-item-0')).toHaveTextContent('John Doe - Paris');
+        expect(screen.getByTestId('user-item-0')).toHaveTextContent(/John Doe/i);
+        expect(screen.getByTestId('user-item-0')).toHaveTextContent(/Paris/i);
         expect(screen.getByTestId('submit-btn')).toBeDisabled();
     });
 
@@ -52,7 +56,7 @@ describe('Registration Component', () => {
         expect(btn).not.toBeDisabled();
     });
 
-    it('should display error messages for invalid fields on submit', () => {
+    it('should display error messages for invalid fields on submit', async () => {
         render(<Registration />);
         fillForm({
             nom: 'Doe123', // invalid
@@ -65,7 +69,9 @@ describe('Registration Component', () => {
 
         const btn = screen.getByTestId('submit-btn');
         expect(btn).not.toBeDisabled();
-        fireEvent.click(btn);
+        await act(async () => {
+            fireEvent.click(btn);
+        });
 
         expect(screen.getByTestId('error-nom')).toHaveTextContent("Format du nom invalide");
         expect(screen.getByTestId('error-prenom')).toHaveTextContent("Format du prénom invalide");
@@ -75,7 +81,7 @@ describe('Registration Component', () => {
         expect(screen.getByTestId('error-codePostal')).toHaveTextContent("Le code postal doit contenir exactement 5 chiffres");
     });
 
-    it('should clear specific error message when user changes the input', () => {
+    it('should clear specific error message when user changes the input', async () => {
         render(<Registration />);
         fillForm({
             nom: 'Doe123',
@@ -86,7 +92,9 @@ describe('Registration Component', () => {
             codePostal: '75001'
         });
 
-        fireEvent.click(screen.getByTestId('submit-btn'));
+        await act(async () => {
+            fireEvent.click(screen.getByTestId('submit-btn'));
+        });
         expect(screen.getByTestId('error-nom')).toBeInTheDocument();
 
         // Change nom to clear error
@@ -94,7 +102,7 @@ describe('Registration Component', () => {
         expect(screen.queryByTestId('error-nom')).not.toBeInTheDocument();
     });
 
-    it('should successfully submit form, show toaster, clear fields, and update list', () => {
+    it('should successfully submit form, show toaster, clear fields, and update list', async () => {
         render(<Registration />);
         fillForm({
             nom: 'Doe',
@@ -105,13 +113,18 @@ describe('Registration Component', () => {
             codePostal: '75001'
         });
 
-        fireEvent.click(screen.getByTestId('submit-btn'));
+        await act(async () => {
+            fireEvent.click(screen.getByTestId('submit-btn'));
+        });
 
         // Toaster should appear
         expect(screen.getByTestId('success-toaster')).toBeInTheDocument();
 
         // User should be in the list
-        expect(screen.getByTestId('user-item-0')).toHaveTextContent('John Doe - Paris');
+        expect(screen.getByTestId('user-item-0')).toHaveTextContent(/John Doe/i);
+        expect(screen.getByTestId('user-item-0')).toHaveTextContent(/Paris/i);
+
+
 
         // LocalStorage should be updated
         const stored = JSON.parse(localStorage.getItem('registeredUsers'));
@@ -123,7 +136,7 @@ describe('Registration Component', () => {
         expect(screen.getByTestId('input-prenom')).toHaveValue('');
 
         // Fast forward time to make toaster disappear
-        act(() => {
+        await act(async () => {
             jest.advanceTimersByTime(3000);
         });
 
