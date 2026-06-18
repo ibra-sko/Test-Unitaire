@@ -51,6 +51,7 @@ jobs:
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
         npm run deploy
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -86,7 +87,14 @@ jobs:
     - name: Create dummy env files
       run: |
         echo "MYSQL_ROOT_PASSWORD=root" > database/.env
-        echo "SECRET_KEY=dummy" > server/.env
+        echo "MYSQL_HOST=db" > server/.env
+        echo "MYSQL_PORT=3306" >> server/.env
+        echo "MYSQL_DATABASE=ynov_ci" >> server/.env
+        echo "MYSQL_USER=root" >> server/.env
+        echo "MYSQL_PASSWORD=root" >> server/.env
+        echo "JWT_SECRET=dummy" >> server/.env
+        echo "ADMIN_EMAIL=admin@test.com" >> server/.env
+        echo "ADMIN_PASSWORD=dummy" >> server/.env
 
     - name: Start Docker Compose
       working-directory: ./database
