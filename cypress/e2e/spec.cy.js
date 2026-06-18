@@ -35,7 +35,7 @@ describe('Tests E2E - Projet 2', () => {
     cy.get('input[name="dateNaissance"]').type('2000-01-01')
     cy.get('input[name="ville"]').type('Paris')
     cy.get('input[name="codePostal"]').type('75001')
-    cy.get('button[type="submit"]').click()
+    cy.get('[data-testid="submit-btn"]').click()
 
     cy.wait('@createUser')
     // Après ajout, App.js recharge les utilisateurs
