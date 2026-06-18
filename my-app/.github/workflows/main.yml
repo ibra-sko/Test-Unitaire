@@ -46,3 +46,59 @@ jobs:
         npm run deploy
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-docker:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build and push frontend
+      run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/frontend -f DockerfileReact .
+        docker push ${{ secrets.DOCKER_USERNAME }}/frontend
+
+    - name: Build and push backend
+      run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/backend -f server/Dockerfile ./server
+        docker push ${{ secrets.DOCKER_USERNAME }}/backend
+
+  test-docker:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Create dummy env files
+      run: |
+        echo "MYSQL_ROOT_PASSWORD=root" > database/.env
+        echo "SECRET_KEY=dummy" > server/.env
+
+    - name: Start Docker Compose
+      working-directory: ./database
+      run: docker compose up -d
+
+    - name: Check Docker containers
+      working-directory: ./database
+      run: docker ps
+
+    - name: Wait for services to be healthy
+      run: sleep 60
+
+    - name: Check health for db
+      run: docker inspect --format "{{json .State.Health.Status }}" database-db-1 | jq -e '. == "healthy"'
+
+    - name: Check health for api
+      run: docker inspect --format "{{json .State.Health.Status }}" database-api-1 | jq -e '. == "healthy"'
+
+    - name: Check health for adminer
+      run: docker inspect --format "{{json .State.Health.Status }}" database-adminer-1 | jq -e '. == "healthy"'
+
+    - name: Check health for react
+      run: docker inspect --format "{{json .State.Health.Status }}" database-react-1 | jq -e '. == "healthy"'
