@@ -123,4 +123,4 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
           npm install -g vercel
-          vercel deploy --prod --token $VERCEL_TOKEN --env MYSQL_HOST=${{ secrets.PROD_MYSQL_HOST }} --env MYSQL_USER=${{ secrets.PROD_MYSQL_USER }} --env MYSQL_PASSWORD=${{ secrets.PROD_MYSQL_PASSWORD }} --env MYSQL_DATABASE=${{ secrets.PROD_MYSQL_DATABASE }} --env SECRET_KEY=${{ secrets.PROD_SECRET_KEY }} --yes
+          vercel deploy --prod --token $VERCEL_TOKEN --yes
