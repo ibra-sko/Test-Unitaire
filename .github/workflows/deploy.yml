@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configure Docker daemon for insecure registry
         run: |
@@ -54,7 +54,7 @@ jobs:
       app_ip: ${{ steps.tf_outputs.outputs.app_ip }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
@@ -74,7 +74,7 @@ jobs:
           terraform output -raw app_private_key > ../app_key.pem
 
       - name: Upload SSH Key Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: app-ssh-key
           path: app_key.pem
@@ -84,10 +84,10 @@ jobs:
     needs: terraform_apply
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download SSH Key
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: app-ssh-key
 
