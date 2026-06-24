@@ -1,0 +1,97 @@
+---
+- name: Déploiement Registry Simple (HTTP)
+  hosts: registry_hosts
+  become: true
+  vars:
+    project_dir: "/home/ubuntu/registry-simple"
+    # L'IP publique est récupérée automatiquement pour la config de l'UI
+    public_ip: "{{ ansible_host }}"
+
+  tasks:
+    # 1. Installation Docker
+    - name: Installation des paquets
+      apt:
+        update_cache: yes
+        name:
+          - docker.io
+          - docker-compose-v2
+          - apache2-utils
+          - python3-passlib
+        state: present
+
+    - name: Ajout user au groupe docker
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    # 2. Dossiers
+    - name: Création des dossiers
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
+      loop:
+        - "{{ project_dir }}"
+        - "{{ project_dir }}/auth"
+        - "{{ project_dir }}/data"
+        - "{{ project_dir }}/certs"
+
+    # 3. Auth (Mot de passe)
+    - name: Génération mot de passe (admin/admin123)
+      htpasswd:
+        path: "{{ project_dir }}/auth/registry.password"
+        name: admin
+        password: admin123
+        owner: ubuntu
+        group: ubuntu
+        mode: 0640
+        crypt_scheme: bcrypt
+
+    - name: Copie du docker-compose.yml
+      template:
+        src: docker-compose.yml
+        dest: "{{ project_dir }}/docker-compose.yml"
+        owner: ubuntu
+        group: ubuntu
+        mode: '0644'
+
+    - name: Configuration de Nginx
+      template:
+        src: nginx.conf
+        dest: "{{ project_dir }}/nginx.conf"
+        owner: ubuntu
+        group: ubuntu
+        mode: '0644'
+
+    # 4. Certificat SSL
+    - name: Génération du certificat SSL auto-signé
+      command: >
+        openssl req -newkey rsa:4096 -nodes -sha256 -keyout {{ project_dir }}/certs/domain.key
+        -x509 -days 365 -out {{ project_dir }}/certs/domain.crt
+        -subj "/CN={{ public_ip }}"
+      args:
+        creates: "{{ project_dir }}/certs/domain.crt"
+
+    - name: Stop stack
+      command: docker compose stop
+      args:
+        chdir: "{{ project_dir }}"
+
+    # 5. Start
+    - name: Démarrage de la stack
+      command: docker compose up --force-recreate -d
+      args:
+        chdir: "{{ project_dir }}"
+
+    - name: Récupération du statut des conteneurs
+      command: docker compose ps
+      args:
+        chdir: "{{ project_dir }}"
+      register: compose_ps_output
+
+    - name: Affichage du statut final dans la console
+      debug:
+        msg: "{{ compose_ps_output.stdout_lines }}"

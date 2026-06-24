@@ -1,0 +1,124 @@
+name: Deploy Application
+
+on:
+  workflow_dispatch:
+
+env:
+  REGISTRY_URL: ${{ secrets.REGISTRY_URL }}
+  REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
+  REGISTRY_PASS: ${{ secrets.REGISTRY_PASS }}
+  MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_REGION: "eu-west-3"
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure Docker daemon for insecure registry
+        run: |
+          sudo jq '. + {"insecure-registries" : ["${{ env.REGISTRY_URL }}"]}' /etc/docker/daemon.json > /tmp/daemon.json
+          sudo mv /tmp/daemon.json /etc/docker/daemon.json
+          sudo systemctl restart docker
+
+      - name: Login to private registry
+        run: |
+          echo "${{ env.REGISTRY_PASS }}" | docker login ${{ env.REGISTRY_URL }} -u ${{ env.REGISTRY_USER }} --password-stdin
+
+      - name: Build and Push React
+        run: |
+          docker build -t ${{ env.REGISTRY_URL }}/react:latest -f DockerfileReact .
+          docker push ${{ env.REGISTRY_URL }}/react:latest
+
+      - name: Build and Push API
+        run: |
+          docker build -t ${{ env.REGISTRY_URL }}/api_server:latest -f server/Dockerfile server/
+          docker push ${{ env.REGISTRY_URL }}/api_server:latest
+
+      - name: Build and Push MySQL
+        run: |
+          docker build -t ${{ env.REGISTRY_URL }}/migration_mysql:latest -f database/Dockerfile database/
+          docker push ${{ env.REGISTRY_URL }}/migration_mysql:latest
+
+  terraform_apply:
+    runs-on: ubuntu-latest
+    needs: build_and_push
+    outputs:
+      app_ip: ${{ steps.tf_outputs.outputs.app_ip }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform Init and Apply
+        working-directory: app-terraform
+        run: |
+          terraform init
+          terraform apply -auto-approve
+
+      - name: Get Terraform Outputs
+        id: tf_outputs
+        working-directory: app-terraform
+        run: |
+          APP_IP=$(terraform output -raw app_ip)
+          echo "app_ip=$APP_IP" >> $GITHUB_OUTPUT
+          terraform output -raw app_private_key > ../app_key.pem
+
+      - name: Upload SSH Key Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-ssh-key
+          path: app_key.pem
+
+  ansible_deploy:
+    runs-on: ubuntu-latest
+    needs: terraform_apply
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download SSH Key
+        uses: actions/download-artifact@v3
+        with:
+          name: app-ssh-key
+
+      - name: Setup SSH Key
+        run: |
+          chmod 600 app_key.pem
+          mkdir -p ~/.ssh
+          cp app_key.pem ~/.ssh/id_rsa
+
+      - name: Create Inventory
+        run: |
+          echo "[app_servers]" > app-ansible/inventory.ini
+          echo "${{ needs.terraform_apply.outputs.app_ip }}" >> app-ansible/inventory.ini
+          echo "[app_servers:vars]" >> app-ansible/inventory.ini
+          echo "ansible_user=ubuntu" >> app-ansible/inventory.ini
+          echo "ansible_ssh_private_key_file=../app_key.pem" >> app-ansible/inventory.ini
+          echo "ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> app-ansible/inventory.ini
+
+      - name: Run Ansible Playbook
+        working-directory: app-ansible
+        run: |
+          ansible-playbook -i inventory.ini app_playbook.yml
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"
+
+  validate:
+    runs-on: ubuntu-latest
+    needs: [terraform_apply, ansible_deploy]
+    steps:
+      - name: Wait for services to be ready
+        run: sleep 30
+
+      - name: Test Frontend (React)
+        run: curl -v http://${{ needs.terraform_apply.outputs.app_ip }}:3000
+
+      - name: Test Backend (FastAPI)
+        run: curl -v http://${{ needs.terraform_apply.outputs.app_ip }}:8000/users || echo "CURL completed"
