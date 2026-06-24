@@ -21,6 +21,9 @@ jobs:
 
       - name: Configure Docker daemon for insecure registry
         run: |
+          if [ ! -f /etc/docker/daemon.json ]; then
+            echo "{}" | sudo tee /etc/docker/daemon.json
+          fi
           sudo jq '. + {"insecure-registries" : ["${{ env.REGISTRY_URL }}"]}' /etc/docker/daemon.json > /tmp/daemon.json
           sudo mv /tmp/daemon.json /etc/docker/daemon.json
           sudo systemctl restart docker
