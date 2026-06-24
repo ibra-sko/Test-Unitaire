@@ -18,12 +18,12 @@ resource "tls_private_key" "pk" {
 }
 
 resource "aws_key_pair" "app_key" {
-  key_name   = "app-key"
+  key_name   = "app-key-ibra"
   public_key = tls_private_key.pk.public_key_openssh
 }
 
 resource "aws_security_group" "app_sg" {
-  name        = "app-sg"
+  name        = "app-sg-ibra"
   description = "Allow SSH, React (3000), API (8000), Adminer (8080), DB (3306)"
 
   lifecycle {
@@ -85,7 +85,7 @@ resource "aws_instance" "app_server" {
   }
 
   tags = {
-    Name = "Terraform-App-Server"
+    Name = "Terraform-App-Server-ibra"
   }
 }
 
